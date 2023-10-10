@@ -206,6 +206,8 @@ accuracy = accuracy_score(y_test, y_pred)
 report = classification_report(y_test, y_pred)
 conf_matrix = confusion_matrix(y_test, y_pred)
 
-print(f"Accuracy on Test Set: {accuracy}")
-print("Classification Report on Test Set:\n", report)
-print("Confusion Matrix on Test Set:\n", conf_matrix)
+
+
+print(accuracy)
+print(report)
+print(conf_matrix)
