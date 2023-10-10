@@ -15,12 +15,13 @@ The initial phase of this project involves exploratory data analysis (EDA) to ga
 
 The dataset is loaded and inspected for data completeness and duplicate entries.
 Summary statistics reveal that there are no missing entries, and duplicate columns (e.g., 'metric8') are identified and removed.
-The 'date' column, deemed irrelevant for predictive modeling, is also dropped from the dataset.
+
 
 ##Data Overview:
 
 The dataset comprises over 124,000 entries from 1,169 unique devices, providing a substantial dataset for analysis.
-Class Imbalance:
+
+##Class Imbalance:
 
 An initial examination of the 'failure' variable indicates a class imbalance, with device failures being relatively rare events.
 

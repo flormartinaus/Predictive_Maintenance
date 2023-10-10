@@ -7,6 +7,18 @@ import sys
 from scipy.stats import chi2_contingency
 import plotly.express as px
 
+from sklearn.model_selection import train_test_split, StratifiedKFold
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.feature_selection import VarianceThreshold
+from sklearn.impute import SimpleImputer
+from imblearn.under_sampling import RandomUnderSampler  # Assuming you have imbalanced-learn installed
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.model_selection import cross_val_score
+
 
 #read csv file
 
@@ -148,3 +160,52 @@ fig.write_html('device_failures_by_month_interactive.html')
 
 # Display the interactive chart in the notebook (optional)
 fig.show()
+
+# DATA PREP
+
+
+# Select columns and convert 'failure' to a categorical variable
+df['failure'] = df['failure'].astype('category')
+
+# Set seed and split data into training and testing sets
+X = df.drop('failure', axis=1)
+y = df['failure']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+# Drop the 'date' column from both X_train and X_test
+X_train = X_train.drop('date', axis=1)
+X_test = X_test.drop('date', axis=1)
+
+# Identify non-numeric columns
+non_numeric_cols = X_train.select_dtypes(exclude=['number']).columns.tolist()
+
+# One-hot encode non-numeric columns
+X_train = pd.get_dummies(X_train, columns=non_numeric_cols)
+X_test = pd.get_dummies(X_test, columns=non_numeric_cols)
+
+# Set seed and create cross-validation folds
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
+
+# Create and train a Random Forest Classifier
+rf_classifier = RandomForestClassifier(random_state=1)
+
+# Evaluate the model using cross-validation
+cross_val_scores = cross_val_score(rf_classifier, X_train, y_train, cv=skf, scoring='accuracy')
+
+print("Cross-validation scores:", cross_val_scores)
+print("Mean CV Accuracy:", cross_val_scores.mean())
+
+# Fit the model to the entire training dataset
+rf_classifier.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = rf_classifier.predict(X_test)
+
+# Evaluate the model on the test set
+accuracy = accuracy_score(y_test, y_pred)
+report = classification_report(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+
+print(f"Accuracy on Test Set: {accuracy}")
+print("Classification Report on Test Set:\n", report)
+print("Confusion Matrix on Test Set:\n", conf_matrix)
