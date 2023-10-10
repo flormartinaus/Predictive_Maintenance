@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
+from scipy.stats import chi2_contingency
 
 
 #read csv file
@@ -33,6 +34,22 @@ print(df.describe())
 #check the class imbalance
 
 class_counts = df['failure'].value_counts()
+
+# Perform a chi-squared test for independence
+contingency_table = pd.crosstab(df['failure'], df['metric1'])
+
+chi2, p, dof, expected = chi2_contingency(contingency_table)
+
+print("Chi-Squared Statistic:", chi2)
+print("P-value:", p)
+
+# Check if the result is statistically significant (you can set your significance level)
+alpha = 0.05
+if p < alpha:
+    print("There is a significant relationship between variable1 and variable2.")
+else:
+    print("There is no significant relationship between variable1 and variable2.")
+
 
 # data visualisation
 # visualise the total number of failures per month
