@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
 from scipy.stats import chi2_contingency
+import plotly.express as px
 
 
 #read csv file
@@ -76,3 +77,71 @@ num_devices_with_multiple_failures = len(devices_with_multiple_failures)
 
 print(f"Number of devices with multiple failures: {num_devices_with_multiple_failures}")
 
+# Calculate the correlation matrix
+correlation_matrix = df.corr(numeric_only=True)
+
+
+# Create a heatmap to visualize the correlation matrix
+plt.figure(figsize=(12, 8))
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
+plt.title('Correlation Matrix')
+
+# Save the correlation matrix as an image
+plt.savefig('correlation_matrix.png')
+
+plt.show()
+
+# Data visualization with Plotly px
+fig = px.bar(monthly_fail, x='month', y='failure', color='month',
+             labels={'failure': 'Total number of failures'},
+             title='Aggregated device failures by month')
+
+# Customize the layout (optional)
+fig.update_layout(
+    xaxis_title='Month',
+    yaxis_title='Total number of failures',
+    xaxis=dict(tickmode='linear'),
+    yaxis=dict(range=[0, 100])
+)
+
+# Customize the layout with larger font size
+fig.update_layout(
+    xaxis_title='Month',
+    yaxis_title='Total number of failures',
+    xaxis=dict(
+        tickmode='linear',
+        title=dict(
+            text='Month',
+            font=dict(
+                size=25  # Adjust the font size as needed
+            )
+        ),
+        tickfont=dict(
+            size=25  # Adjust the font size of tick labels as needed
+        )
+    ),
+    yaxis=dict(
+        range=[0, 100],
+        title=dict(
+            text='Total number of failures',
+            font=dict(
+                size=25  # Adjust the font size as needed
+            )
+        ),
+        tickfont=dict(
+            size=25  # Adjust the font size of tick labels as needed
+        )
+    ),
+    title=dict(
+        text='Aggregated device failures by month',
+        font=dict(
+            size=35  # Adjust the title font size as needed
+        )
+    )
+)
+
+# Save the interactive visualization as an HTML file
+fig.write_html('device_failures_by_month_interactive.html')
+
+# Display the interactive chart in the notebook (optional)
+fig.show()
