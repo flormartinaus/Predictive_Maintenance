@@ -76,8 +76,3 @@ num_devices_with_multiple_failures = len(devices_with_multiple_failures)
 
 print(f"Number of devices with multiple failures: {num_devices_with_multiple_failures}")
 
-
-
-
-
-
