@@ -72,7 +72,7 @@ plt.show()
 
 # Check devices with multiple failures
 device_failure_counts = df.groupby('device')['failure'].sum()
-devices_with_multiple_failures = device_failure_counts[device_failure_counts >= 2]
+devices_with_multiple_failures = device_failure_counts[device_failure_counts >= 1]
 num_devices_with_multiple_failures = len(devices_with_multiple_failures)
 
 print(f"Number of devices with multiple failures: {num_devices_with_multiple_failures}")
