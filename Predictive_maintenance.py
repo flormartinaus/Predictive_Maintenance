@@ -28,6 +28,9 @@ df = df.loc[:, ~df.columns.duplicated()]
 num_entries = df.shape[0]
 num_unique_devices = df['device'].nunique()
 
+print(f"Number of entries (rows): {num_entries}")
+print(f"Number of unique devices: {num_unique_devices}")
+
 # print summary statistics
 
 print(df.describe())
