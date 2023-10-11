@@ -176,12 +176,29 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 X_train = X_train.drop('date', axis=1)
 X_test = X_test.drop('date', axis=1)
 
-# Identify non-numeric columns
-non_numeric_cols = X_train.select_dtypes(exclude=['number']).columns.tolist()
+# Combine training and test data into one DataFrame
+combined_data = pd.concat([X_train, X_test], axis=0)
 
-# One-hot encode non-numeric columns
-X_train = pd.get_dummies(X_train, columns=non_numeric_cols)
-X_test = pd.get_dummies(X_test, columns=non_numeric_cols)
+# Identify non-numeric columns
+non_numeric_cols = combined_data.select_dtypes(exclude=['number']).columns.tolist()
+
+# One-hot encode non-numeric columns for the combined data
+combined_data_encoded = pd.get_dummies(combined_data, columns=non_numeric_cols)
+
+# Split the combined data back into training and test sets
+X_train_encoded = combined_data_encoded.iloc[:len(X_train)]
+X_test_encoded = combined_data_encoded.iloc[len(X_train):]
+
+# Ensure that the column order is consistent
+X_test_encoded = X_test_encoded[X_train_encoded.columns]
+
+
+
+
+
+
+
+
 
 # Set seed and create cross-validation folds
 skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
@@ -190,24 +207,43 @@ skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=1)
 rf_classifier = RandomForestClassifier(random_state=1)
 
 # Evaluate the model using cross-validation
-cross_val_scores = cross_val_score(rf_classifier, X_train, y_train, cv=skf, scoring='accuracy')
+cross_val_scores = cross_val_score(rf_classifier, X_train_encoded, y_train, cv=skf, scoring='accuracy')
 
 print("Cross-validation scores:", cross_val_scores)
 print("Mean CV Accuracy:", cross_val_scores.mean())
 
 # Fit the model to the entire training dataset
-rf_classifier.fit(X_train, y_train)
+rf_classifier.fit(X_train_encoded, y_train)
 
 # Make predictions on the test set
-y_pred = rf_classifier.predict(X_test)
+y_pred = rf_classifier.predict(X_test_encoded)
 
 # Evaluate the model on the test set
 accuracy = accuracy_score(y_test, y_pred)
 report = classification_report(y_test, y_pred)
 conf_matrix = confusion_matrix(y_test, y_pred)
 
+# Save the classification report as an image
+report_image = classification_report(y_test, y_pred, target_names=['Class 0', 'Class 1'])
+plt.figure(figsize=(8, 6))
+plt.text(0.1, 0.5, report_image, fontsize=12)
+plt.axis('off')
+plt.savefig('classification_report.png')
+
+# Create a DataFrame for predicted X values (X_test_encoded)
+predicted_X_df = pd.DataFrame(X_test_encoded)
+
+# Create a DataFrame for predicted Y values (y_pred)
+predicted_Y_df = pd.DataFrame({'Predicted_Y': y_pred})
+
+# Save the DataFrames to CSV files
+predicted_X_df.to_csv('predicted_X.csv', index=False)
+predicted_Y_df.to_csv('predicted_Y.csv', index=False)
 
 
-print(accuracy)
-print(report)
-print(conf_matrix)
+
+
+
+
+
+
